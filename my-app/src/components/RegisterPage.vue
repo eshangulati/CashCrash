@@ -1,0 +1,114 @@
+<template>
+    <div class="register-container">
+      <div class="register-box">
+        <h1>CashCrafter</h1>
+        <form @submit.prevent="handleRegister">
+          <div class="input-container">
+            <input type="email" v-model="email" placeholder="Email ID" />
+          </div>
+          <div class="input-container">
+            <input type="text" v-model="username" placeholder="Username" />
+          </div>
+          <div class="input-container">
+            <input type="password" v-model="password" placeholder="Password" />
+          </div>
+          <div class="input-container">
+            <input type="password" v-model="confirmPassword" placeholder="Confirm Password" />
+          </div>
+          <button type="submit" class="register-button">Register</button>
+        </form>
+        <div class="additional-options">
+            <router-link to="/">Back to Login</router-link>
+        </div>
+      </div>
+    </div>
+  </template>
+  
+  <script>
+  export default {
+    name: 'RegisterView',
+    data() {
+      return {
+        email: '',
+        username: '',
+        password: '',
+        confirmPassword: ''
+      };
+    },
+    methods: {
+      handleRegister() {
+        // Add your registration logic here
+        console.log('Email:', this.email);
+        console.log('Username:', this.username);
+        console.log('Password:', this.password);
+        console.log('Confirm Password:', this.confirmPassword);
+      }
+    }
+  };
+  </script>
+  
+  <style scoped>
+  .register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+  }
+  
+  .register-box {
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .register-box h1 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #3b82f6;
+  }
+  
+  .input-container {
+    margin-bottom: 20px;
+  }
+  
+  .input-container input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  
+  .register-button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #3b82f6;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .register-button:hover {
+    background-color: #2563eb;
+  }
+  
+  .additional-options {
+    margin-top: 10px;
+    font-size: 14px;
+  }
+  
+  .additional-options a {
+    color: #3b82f6;
+    text-decoration: none;
+  }
+  
+  .additional-options a:hover {
+    text-decoration: underline;
+  }
+  </style>
+  
