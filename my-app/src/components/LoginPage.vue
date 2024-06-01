@@ -19,8 +19,9 @@
   </div>
 </template>
 
-
 <script>
+import axios from 'axios';
+
 export default {
   name: 'LoginView',
   data() {
@@ -31,9 +32,19 @@ export default {
   },
   methods: {
     handleLogin() {
-      // Add your login logic here
-      console.log('Username:', this.username);
-      console.log('Password:', this.password);
+      axios.post('http://localhost/api_login.php/login', {
+        username: this.username,
+        password: this.password
+      })
+      .then(response => {
+        const { user_id } = response.data;
+        localStorage.setItem('user_id', user_id);
+        this.$router.push(`/dashboard/${user_id}`); // Redirect to dashboard page
+      })
+      .catch(error => {
+        console.error(error);
+        alert('Error logging in.');
+      });
     }
   }
 };

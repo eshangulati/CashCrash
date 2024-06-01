@@ -1,51 +1,70 @@
 <template>
-    <div class="register-container">
-      <div class="register-box">
-        <h1>CashCrafter</h1>
-        <form @submit.prevent="handleRegister">
-          <div class="input-container">
-            <input type="email" v-model="email" placeholder="Email ID" />
-          </div>
-          <div class="input-container">
-            <input type="text" v-model="username" placeholder="Username" />
-          </div>
-          <div class="input-container">
-            <input type="password" v-model="password" placeholder="Password" />
-          </div>
-          <div class="input-container">
-            <input type="password" v-model="confirmPassword" placeholder="Confirm Password" />
-          </div>
-          <button type="submit" class="register-button">Register</button>
-        </form>
-        <div class="additional-options">
-            <router-link to="/">Back to Login</router-link>
+  <div class="register-container">
+    <div class="register-box">
+      <h1>CashCrafter</h1>
+      <form @submit.prevent="handleRegister">
+        <div class="input-container">
+          <input type="email" v-model="email" placeholder="Email ID" />
         </div>
+        <div class="input-container">
+          <input type="text" v-model="username" placeholder="Username" />
+        </div>
+        <div class="input-container">
+          <input type="password" v-model="password" placeholder="Password" />
+        </div>
+        <div class="input-container">
+          <input type="password" v-model="confirmPassword" placeholder="Confirm Password" />
+        </div>
+        <button type="submit" class="register-button">Register</button>
+      </form>
+      <div class="additional-options">
+        <router-link to="/">Back to Login</router-link>
       </div>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    name: 'RegisterView',
-    data() {
-      return {
-        email: '',
-        username: '',
-        password: '',
-        confirmPassword: ''
-      };
-    },
-    methods: {
-      handleRegister() {
-        // Add your registration logic here
-        console.log('Email:', this.email);
-        console.log('Username:', this.username);
-        console.log('Password:', this.password);
-        console.log('Confirm Password:', this.confirmPassword);
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+
+export default {
+  name: 'RegisterView',
+  data() {
+    return {
+      email: '',
+      username: '',
+      password: '',
+      confirmPassword: ''
+    };
+  },
+  methods: {
+    handleRegister() {
+      if (this.password !== this.confirmPassword) {
+        alert('Passwords do not match.');
+        return;
       }
+
+      axios.post('http://localhost/api_login.php/register', {
+        username: this.username,
+        password: this.password,
+        email: this.email
+      })
+      .then(response => {
+        if (response.data.auth) {
+          localStorage.setItem('token', response.data.token);
+          this.$router.push('/dashboard');
+        } else {
+          alert(response.data.message || 'Registration failed');
+        }
+      })
+      .catch(error => {
+        console.error(error);
+        alert('Error registering.');
+      });
     }
-  };
-  </script>
+  }
+};
+</script>
   
   <style scoped>
   .register-container {
