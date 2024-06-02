@@ -34,7 +34,7 @@ export default {
   methods: {
     handleLogin() {
     console.log("Sending login request", { username: this.username, password: this.password });
-    axios.post('http://localhost/api_login.php/login', {
+    axios.post('https://mercury.swin.edu.au/cos30043/s103491209/api_login.php', {
       username: this.username,
       password: this.password
     })

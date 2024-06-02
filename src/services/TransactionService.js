@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost/transactions.php';
+const API_URL = 'https://mercury.swin.edu.au/cos30043/s103491209/transactions.php';
 
 class TransactionService {
     getTransactions(userId) {

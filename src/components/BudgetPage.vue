@@ -103,7 +103,7 @@
     },
     methods: {
       fetchBudgets() {
-        axios.get('http://localhost/budget.php', {
+        axios.get('https://mercury.swin.edu.au/cos30043/s103491209/budget.php', {
           params: {
             user_id: this.user_id
           }

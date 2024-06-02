@@ -63,7 +63,7 @@
     },
     methods: {
       fetchSavingsGoals() {
-        axios.get('http://localhost/savings.php', { params: { user_id: this.user_id }})
+        axios.get('https://mercury.swin.edu.au/cos30043/s103491209/savings.php', { params: { user_id: this.user_id }})
           .then(response => {
             this.savingsGoals = response.data;
           })
