@@ -46,7 +46,7 @@
     },
     methods: {
         downloadReport() {
-    const url = `https://mercury.swin.edu.au/cos30043/s103491209/report.php?user_id=${this.user_id}`;
+    const url = `https://localhost/report.php?user_id=${this.user_id}`;
     axios({
         url: url,
         method: 'GET',
