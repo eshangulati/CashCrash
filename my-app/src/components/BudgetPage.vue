@@ -16,14 +16,17 @@
             <button class="nav-button">Reports</button>
           </router-link>
         </nav>
+        
       </header>
       <button @click="showAddModal = true" class="nav-button">Add Budget</button>
-      <main class="budget-main">
-        <div class="budget-list">
+      <main>
+        <div>
           <div v-for="budget in budgets" :key="budget.id" class="budget-item">
-            <div class="budget-circle" :class="{'alert': budget.amountSpent >= budget.limit}">
-              <p>{{ budget.category }}</p>
-              <p>${{ budget.amountSpent }} out of ${{ budget.allowance }}</p>
+            <h3>{{ budget.category }}</h3>
+            <div class="progress-container" :class="{'alert': budget.amountSpent >= budget.limit}">
+            <div class="progress-bar"  :style="progressStyle(budget)" >
+              <span>${{ budget.amountSpent }} out of ${{ budget.allowance }}</span>
+            </div>
             </div>
             <br>
             <div>
@@ -31,6 +34,13 @@
                 <button @click="deletebudget(budget.id)" class="function_button">Delete</button>
             </div>
           </div>
+        </div>
+        <div v-if="showExceedanceModal" class="modal">
+            <div class="modal-content">
+                <h2>Budget Exceeded Warning</h2>
+                <p>{{ exceedanceMessage }}</p>
+                <button @click="showExceedanceModal = false">Close</button>
+            </div>
         </div>
       </main>
   
@@ -76,13 +86,15 @@
         budgets: [],
         showAddModal: false,
         showEditModal: false,
+        showExceedanceModal: false,
         newBudget: {
           user_id: localStorage.getItem('user_id'),
           category: '',
           allowance: 0,
           amountSpent: 0
         },
-        currentBudget: {}
+        currentBudget: {},
+        exceedanceMessage: ''
       };
     },
     created() {
@@ -97,6 +109,8 @@
         })
         .then(response => {
           this.budgets = response.data;
+          console.log(this.budgets);
+          this.checkBudgetExceedance();
         })
         .catch(error => {
           console.error(error);
@@ -143,8 +157,25 @@
           limit: 0,
           amountSpent: 0
         };
+      },
+      checkBudgetExceedance() {
+        this.exceedanceMessage = '';  // Reset the message each time we check
+        this.budgets.forEach(budget => {
+            if (parseFloat(budget.amountSpent) > parseFloat(budget.allowance)) {
+            this.exceedanceMessage += `Amount spent exceeded budget for ${budget.category}. `;
+            this.showExceedanceModal = true;  // Show the message or modal
       }
+        });
+    },
+    progressStyle(budget) {
+      const percentage = (budget.amountSpent / budget.allowance) * 100;
+      return {
+        width: `${Math.max(-100, Math.min(percentage, 100))}%`,
+        backgroundColor: percentage > 100 ? '#ff6f61' : '#4dd0e1'
+      };
+    },
     }
+    
   };
   </script>
   
@@ -163,21 +194,18 @@
     margin: 0 5px;
   }
   
-  .budget-main {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-  }
-  
-  .budget-list {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-  }
   
   .budget-item {
     margin: 20px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 10px;
   }
+
+  .budget-item h3 {
+    margin-top: 0;
+}    
   
   .budget-circle {
     width: 200px;
@@ -248,14 +276,43 @@
     background-color: #26c6da; /* Darker shade on hover */
   }
   .function_button{
-    margin: 0 5px;
-    padding: 5px 10px;
+    display: inline-block; /* Ensure the buttons are not collapsing or hiding */
+    margin: 10px 5px; /* Adjust spacing around buttons */
+    padding: 10px 15px; /* More padding for better clickability */
     border: none;
-    border-radius: 5px;
-    background-color: #4dd0e1;
+    border-radius: 8px; /* Smooth rounded corners */
+    background-color: #17a2b8; /* A brighter, more visible color */
     color: white;
     cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  </style>
+    transition: background-color 0.3s, transform 0.2s; /* Smooth transitions on hover */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15); /* Subtle shadow for 3D effect */
+}
+
+.function_button:hover, .function_button:focus {
+    background-color: #138496; /* Slightly darker on hover for feedback */
+    transform: translateY(-2px); /* Lift effect on hover */
+    outline: none; /* Remove focus outline */
+}
+
+.function_button:active {
+    transform: translateY(1px); /* Subtle press effect */
+}
+
+  .progress-container {
+    width: 100%;
+    height: 20px;
+    background-color: #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar {
+  height: 20px;
+  background-color: #4dd0e1;
+  border-radius: 5px;
+  transition: width 0.3s ease;
+}
+
+</style>
   

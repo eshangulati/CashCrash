@@ -31,7 +31,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="transaction in transactions" :key="transaction.id">
+          <tr v-for="transaction in paginatedTransactions" :key="transaction.id">
             <td>{{ transaction.date }}</td>
             <td>{{ transaction.category }}</td>
             <td>{{ transaction.merchant }}</td>
@@ -43,6 +43,15 @@
           </tr>
         </tbody>
       </table>
+      <div class="pagination-controls">
+        <button @click="handlePageClick(Math.max(currentPage - 1, 1))" :disabled="currentPage === 1">
+        Prev Page
+        </button>
+        <span>Page {{ currentPage }} of {{ pageCount }}</span>
+        <button @click="handlePageClick(Math.min(currentPage + 1, pageCount))" :disabled="currentPage === pageCount">
+        Next Page
+        </button>
+      </div>
   
       <div v-if="showAddModal" class="modal">
         <div class="modal-content">
@@ -96,6 +105,8 @@
         transactions: [],
         showAddModal: false,
         showEditModal: false,
+        currentPage: 1,
+        pageSize: 3,
         newTransaction: {
           user_id: this.$route.params.user_id, // This should be dynamically set to the logged-in user's ID
           date: '',
@@ -165,8 +176,21 @@
           merchant: '',
           amount: ''
         };
-      }
+      },
+      handlePageClick(pageNumber) {
+        this.currentPage = pageNumber;
+      },
+    },
+    computed: {
+    paginatedTransactions() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.transactions.slice(start, end);
+    },
+    pageCount() {
+      return Math.ceil(this.transactions.length / this.pageSize);
     }
+  }
   };
   </script>
   
@@ -255,5 +279,26 @@
 .transactions-table td button:hover {
   background-color: #26c6da;
 }
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination-controls button {
+  padding: 8px 12px;
+  margin: 0 10px;
+  background-color: #4dd0e1;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.pagination-controls button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
   </style>
   

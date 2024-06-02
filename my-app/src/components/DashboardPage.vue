@@ -27,18 +27,21 @@
       <section class="transaction-history">
         <h2>Transaction History</h2>
         <ul>
-          <li v-for="transaction in transactions" :key="transaction.id">
+          <li v-for="transaction in lastThreeTransactions" :key="transaction.id">
             Date: {{ transaction.date }}, Category: {{ transaction.category }}, Merchant: {{ transaction.merchant }}, Amount: ${{ transaction.amount }}
           </li>
         </ul>
       </section>
       <section class="upcoming-transaction">
-        <h2>Upcoming Transaction</h2>
-        <div class="transaction-details">
-          <p>Date: June 1, 2024, 11:18 AM</p>
-          <p>Category: Entertainment</p>
-          <p>Merchant: Spotify</p>
-          <p>Amount: $196.73</p>
+        <h2>Savings</h2>
+        <div>
+          <div v-for="goal in savingsGoals" :key="goal.id" class="savings-goal">
+            <div class="progress-bar-container" :class="{'alert': getBudgetInfo(goal.category).remaining < 0}">
+            <div class="progress-bar" :style="{ width: progressBarWidth(goal) }"></div>
+            </div>
+                <p>{{ goal.category }}</p>
+                <p>${{ getBudgetInfo(goal.category).remaining }} saved of ${{ goal.goal }}</p>
+            </div>
         </div>
       </section>
     </main>
@@ -54,6 +57,7 @@ export default {
     return {
       user_id: localStorage.getItem('user_id'),
       transactions: [],
+      savingsGoals: [],
       budgets: [],
       totalAllowance: 0
     };
@@ -61,6 +65,7 @@ export default {
   mounted() {
     this.fetchTransactions();
     this.fetchBudgets();
+    this.fetchSavingsGoals();
   },
   methods: {
     fetchTransactions() {
@@ -91,8 +96,39 @@ export default {
         console.error('Error fetching budgets:', error);
       })
     },
+    fetchSavingsGoals() {
+        axios.get('http://localhost/savings.php', { params: { user_id: this.user_id }})
+          .then(response => {
+            this.savingsGoals = response.data;
+          })
+          .catch(error => {
+            console.error('Error fetching savings goals:', error);
+          });
+    },
+    getBudgetInfo(category) {
+        const budget = this.budgets.find(b => b.category === category);
+        return budget ? { 
+        allowance: budget.allowance, 
+        amountSpent: budget.amountSpent,
+        remaining: budget.allowance - budget.amountSpent} : { allowance: 0, amountSpent: 0, remaining: 0 };
+    },
+    getSpent(category) {
+      const budget = this.budgets.find(b => b.category === category);
+      return budget ? budget.amountSpent : 0;
+    },
+    progressBarWidth(goal) {
+      const budgetInfo = this.getBudgetInfo(goal.category);
+      let percentage = (budgetInfo.remaining / goal.goal) * 100;
+      percentage = Math.max(0, Math.min(percentage, 100)); // Clamp percentage to 0-100%
+      return `${percentage}%`;
+    },
     calculateTotalAllowance(){
       this.totalAllowance = this.budgets.reduce((sum, budget) => sum + parseFloat(budget.allowance), 0);
+    }
+  },
+  computed: {
+    lastThreeTransactions(){
+      return this.transactions.slice(-3);
     }
   }
 };
@@ -162,5 +198,25 @@ export default {
   .nav-button:hover {
   background-color: #26c6da; /* Darker shade on hover */
   }
+
+  .progress-bar-container {
+  width: 100%;
+  height: 20px;
+  background-color: #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #4dd0e1;
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+.savings-goal .alert .progress-bar {
+  background-color: #ff6f61;
+}
   </style>
   

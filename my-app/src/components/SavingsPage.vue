@@ -1,15 +1,44 @@
 <template>
     <div class="savings-container">
-      <header>
-        <h1>Savings Goals</h1>
-      </header>
-      <div class="savings-circles">
-        <div v-for="goal in savingsGoals" :key="goal.id" class="savings-circle" :class="{'alert': goal.goal - getSpent(goal.category) < 0}">
-          <p>{{ goal.category }}</p>
-          <p>${{ goal.goal - getSpent(goal.category) }} left of ${{ goal.goal }}</p>
-          <button @click="setGoal(goal)">Set Goal</button>
+        <header class="savings-header">
+            <h1>Savings Goals</h1>
+            <nav class="nav-buttons">
+            <router-link :to="`/dashboard/${user_id}`">
+                <button class="nav-button">Dashboard</button>
+            </router-link>
+            <router-link :to="`/budget/${user_id}`">
+                <button class="nav-button">Budget</button>
+            </router-link>
+            <router-link :to="`/transaction/${user_id}`">
+                <button class="nav-button">Transactions</button>
+            </router-link>
+            <router-link :to="`/reports/${user_id}`">
+                <button class="nav-button">Reports</button>
+            </router-link>
+            </nav>
+        </header>
+        <div>
+            <h2>Add New Goal</h2>
+            <select v-model="newGoalCategory" >
+                <option disabled value="">Select Category</option>
+                <option value="Grocery">Grocery</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Education">Education</option>
+            </select>
+        <input v-model.number="newGoalAmount" type="number" placeholder="Goal Amount" min="0.01" step="0.01" />
+      <button @click="addNewGoal" class="nav-button">Add Goal</button>
         </div>
-      </div>
+        <div class="savings-circles">
+            <div v-for="goal in savingsGoals" :key="goal.id" class="savings-goal">
+            <div class="progress-bar-container" :class="{'alert': getBudgetInfo(goal.category).remaining < 0}">
+            <div class="progress-bar" :style="progressBarWidth(goal)"></div>
+            </div>
+                <p>{{ goal.category }}</p>
+                <p>${{ getBudgetInfo(goal.category).remaining }} saved of ${{ goal.goal }}</p>
+            <button @click="setGoal(goal)" class="function_button">Set Goal</button>
+            </div>
+        </div>
     </div>
   </template>
   
@@ -22,7 +51,9 @@
       return {
         user_id: localStorage.getItem('user_id'),
         savingsGoals: [],
-        budgets: []
+        budgets: [],
+        newGoalCategory: '',
+        newGoalAmount: 0
       };
     },
     created() {
@@ -48,6 +79,13 @@
             console.error('Error fetching budgets:', error);
           });
       },
+      getBudgetInfo(category) {
+        const budget = this.budgets.find(b => b.category === category);
+        return budget ? { 
+        allowance: budget.allowance, 
+        amountSpent: budget.amountSpent,
+        remaining: budget.allowance - budget.amountSpent} : { allowance: 0, amountSpent: 0, remaining: 0 };
+    },
       getSpent(category) {
         const budget = this.budgets.find(b => b.category === category);
         return budget ? budget.amountSpent : 0;
@@ -73,39 +111,129 @@
         console.error('Error updating goal:', error);
         alert("Failed to update goal.");
       });
+    },
+    addNewGoal() {
+    if (!this.newGoalCategory || this.newGoalAmount <= 0) {
+      alert("Please fill all fields correctly.");
+      return;
     }
-    }
+    
+
+    const goalData = {
+      user_id: this.user_id,
+      category: this.newGoalCategory,
+      goal: this.newGoalAmount
+    };
+    axios.post('http://localhost/savings.php', goalData)
+      .then(() => {
+        this.fetchSavingsGoals();  // Refresh the list of goals
+        alert("New savings goal added successfully!");
+        this.newGoalCategory = '';  // Reset the input fields
+        this.newGoalAmount = 0;
+      })
+      .catch(error => {
+        console.error('Error adding new savings goal:', error);
+        alert("Failed to add new savings goal.");
+      });
+  },
+  progressBarWidth(goal) {
+    const budgetInfo = this.getBudgetInfo(goal.category);
+    let percentage = (budgetInfo.remaining / goal.goal) * 100;
+    percentage = Math.max(-100, Math.min(percentage, 100)); // Clamp percentage to 0-100%
+  
+  // Determine the background color based on the percentage
+    const backgroundColor = percentage < 0 ? '#ff6f61' : '#4dd0e1';
+
+    return {
+        width: `${percentage}%`,
+        backgroundColor: backgroundColor
+    };
+}
+
+  
+}
   };
   </script>
   
   <style scoped>
-  .savings-container {
-    padding: 20px;
+  .savings-container{
+  padding: 20px;
+}  
+  .savings-header {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
   }
+  
+  .nav-buttons button {
+    margin: 0 5px;
+  }
+
   .savings-circles {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
   }
-  .savings-circle {
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    background-color: #4dd0e1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-size: 16px;
-    margin: 10px;
-    transition: background-color 0.3s;
-  }
+  
   .savings-circle.alert {
     background-color: #ff6f61;
   }
+  .nav-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px; /* Rounded corners */
+  background-color: #4dd0e1; /* Button background color */
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+  }
+
+  .nav-button:hover {
+  background-color: #26c6da; /* Darker shade on hover */
+  }
+  .add-goal-form {
+  margin-bottom: 20px;
+}
+.function_button{
+    margin: 0 5px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4dd0e1;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .function_button:hover {
+  background-color: #26c6da;}
+
+  .savings-goal {
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #f3f3f3;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 20px;
+  background-color: #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #4dd0e1;
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+.savings-goal .alert .progress-bar {
+  background-color: #ff6f61;
+}
   </style>
   
