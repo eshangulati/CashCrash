@@ -9,11 +9,11 @@
         <div class="input-container">
           <input type="password" v-model="password" placeholder="Password" />
         </div>
+        <div v-if="loginError" class="error-message">{{ loginError }}</div>
         <button type="submit" class="login-button">Login</button>
       </form>
       <div class="additional-options">
-        <router-link to="/register">Register</router-link> /
-        <a href="#">Forgot Password</a>
+        <router-link to="/register">Register</router-link> 
       </div>
     </div>
   </div>
@@ -27,25 +27,32 @@ export default {
   data() {
     return {
       username: '',
-      password: ''
+      password: '',
+      loginError: ''
     };
   },
   methods: {
     handleLogin() {
-      axios.post('http://localhost/api_login.php/login', {
-        username: this.username,
-        password: this.password
-      })
-      .then(response => {
-        const { user_id } = response.data;
-        localStorage.setItem('user_id', user_id);
-        this.$router.push(`/dashboard/${user_id}`); // Redirect to dashboard page
-      })
-      .catch(error => {
-        console.error(error);
-        alert('Error logging in.');
-      });
-    }
+    console.log("Sending login request", { username: this.username, password: this.password });
+    axios.post('http://localhost/api_login.php/login', {
+      username: this.username,
+      password: this.password
+    })
+    .then(response => {
+      console.log("Received response:", response.data);
+      if (response.data.auth) {
+        localStorage.setItem('user_id', response.data.user_id);
+        this.$router.replace(`/dashboard/${response.data.user_id}`);
+      } else {
+        console.log("Login failed:", response.data.message);
+        this.loginError = response.data.message;
+      }
+    })
+    .catch(error => {
+      console.error("Login error:", error);
+      this.loginError = 'Error logging in. Please try again later.';
+    });
+  }
   }
 };
 </script>

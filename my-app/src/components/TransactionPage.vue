@@ -1,5 +1,6 @@
 <template>
     <div class="transactions-container">
+      <button @click="logout" class="nav-button logout-button">Logout</button>
       <header class="transaction-header">
         <h1>Transactions</h1>
         <nav class="nav-buttons">
@@ -17,6 +18,14 @@
             </router-link>
           </nav>
       </header>
+      <br>
+      <div>
+      <input v-model="searchQuery" placeholder="Search transactions..." @input="filterTransactions">
+      <select v-model="selectedCategory" @change="filterTransactions">
+        <option value="">All Categories</option>
+        <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
+      </select>
+      </div>
       <br>
       <button @click="showAddModal = true" class="nav-button">Add Transaction</button>
       <br>
@@ -103,6 +112,7 @@
     data() {
       return {
         transactions: [],
+        filteredTransactions: [],
         showAddModal: false,
         showEditModal: false,
         currentPage: 1,
@@ -114,7 +124,10 @@
           merchant: '',
           amount: ''
         },
-        currentTransaction: {}
+        currentTransaction: {},
+        searchQuery: '',
+        selectedCategory: '',
+        categories: ['Grocery', 'Entertainment', 'Shopping', 'Education']
       };
     },
     created() {
@@ -128,10 +141,23 @@
         .then(response => {
             console.log("Transactions fetched: ", response.data);
           this.transactions = response.data;
+          this.filterTransactions();
         })
         .catch(error => {
           console.error(error);
         });
+    },
+    filterTransactions() {
+      if (!this.searchQuery && !this.selectedCategory) {
+        this.filteredTransactions = this.transactions;
+      } else {
+        this.filteredTransactions = this.transactions.filter(transaction => {
+          const matchesCategory = this.selectedCategory ? transaction.category === this.selectedCategory : true;
+          const matchesSearch = transaction.merchant.toLowerCase().includes(this.searchQuery.toLowerCase());
+          return matchesCategory && matchesSearch;
+        });
+      }
+      this.currentPage = 1; // Reset to first page after filtering
     },
       createTransaction() {
         this.newTransaction.user_id = localStorage.getItem('user_id');
@@ -180,16 +206,26 @@
       handlePageClick(pageNumber) {
         this.currentPage = pageNumber;
       },
+      logout() {
+      localStorage.removeItem('user_id'); // Clear user session
+      this.$router.push('/').then(() => {
+      history.replaceState(null, null, '/'); // Replace the history state
+      });
+  }
     },
     computed: {
     paginatedTransactions() {
       const start = (this.currentPage - 1) * this.pageSize;
       const end = start + this.pageSize;
-      return this.transactions.slice(start, end);
+      return this.filteredTransactions.slice(start, end);
     },
     pageCount() {
-      return Math.ceil(this.transactions.length / this.pageSize);
+      return Math.ceil(this.filteredTransactions.length / this.pageSize);
     }
+  },
+  watch: {
+    searchQuery: 'filterTransactions',
+    selectedCategory: 'filterTransactions'
   }
   };
   </script>
@@ -199,11 +235,51 @@
     padding: 20px;
   }
 
-  .transaction-header{
+  input, select {
+  padding: 8px 10px;
+  margin-right: 10px; /* Adds spacing between input/select and any other elements */
+  border: 2px solid #4dd0e1; /* Matching border color to theme */
+  border-radius: 5px; /* Rounded corners for input and select */
+  outline: none; /* Removes default focus outline */
+  font-size: 16px; /* Matching font size for better readability */
+}
+
+input::placeholder {
+  color: #aaa; /* Lighter text color for placeholder */
+}
+
+input:focus, select:focus {
+  border-color: #26c6da; /* Darker border on focus */
+}
+  
+  .transaction-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap; /* Allows header content to wrap on smaller screens */
   }
+
+  .logout-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #ff4444; /* Red color for logout to indicate action */
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px; /* Ensure the font size is consistent */
+  transition: background-color 0.3s;
+}
+  .nav-button.logout-button {
+    background-color: #ff4444; /* Red color for logout to indicate action */
+  }
+
+  .nav-button.logout-button:hover {
+    background-color: #cc0000; /* Darker red on hover */
+  }
+
   
   .modal {
     position: fixed;
@@ -222,83 +298,123 @@
     padding: 20px;
     border-radius: 5px;
   }
+  
   .nav-button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 10px; /* Rounded corners */
-  background-color: #4dd0e1; /* Button background color */
-  color: white;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px; /* Rounded corners */
+    background-color: #4dd0e1; /* Button background color */
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
   }
-
+  
   .nav-button:hover {
-  background-color: #26c6da; /* Darker shade on hover */
+    background-color: #26c6da; /* Darker shade on hover */
   }
+  
   .nav-buttons button {
     margin: 0 5px;
   }
+  
   .transactions-table {
-  margin: 20px auto;
-  border-collapse: collapse;
-  width: 80%;
-  background-color: white;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
+    margin: 20px auto;
+    border-collapse: collapse;
+    width: 100%; /* Adjust table width to be responsive */
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .transactions-table th,
+  .transactions-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #4dd0e1;
+  }
+  
+  .transactions-table th {
+    background-color: #4dd0e1;
+    color: white;
+  }
+  
+  .transactions-table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .transactions-table td button {
+    margin: 0 5px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4dd0e1;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .transactions-table td button:hover {
+    background-color: #26c6da;
+  }
+  
+  .pagination-controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .pagination-controls button {
+    padding: 8px 12px;
+    margin: 0 10px;
+    background-color: #4dd0e1;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
 
-.transactions-table th,
-.transactions-table td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #4dd0e1;
-}
-
-.transactions-table th {
-  background-color: #4dd0e1;
-  color: white;
-}
-
-.transactions-table tr:hover {
-  background-color: #f1f1f1;
-}
-
-.transactions-table td button {
-  margin: 0 5px;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 5px;
-  background-color: #4dd0e1;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.transactions-table td button:hover {
-  background-color: #26c6da;
-}
-.pagination-controls {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.pagination-controls button {
-  padding: 8px 12px;
-  margin: 0 10px;
-  background-color: #4dd0e1;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.pagination-controls button:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
+  .pagination-controls button:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  
+  /* Media Queries for smaller devices */
+  @media (max-width: 768px) {
+    .transaction-header {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .nav-buttons {
+      width: 100%; /* Full width for easier navigation on small devices */
+      margin-top: 10px;
+    }
+  
+    .nav-buttons button, .nav-button .logout-button {
+      width: 100%; /* Full-width buttons for better accessibility */
+      margin: 5px 0;
+    }
+  
+    .transactions-table {
+      font-size: 11px; /* Smaller font size for content */
+    }
+    input, select {
+    width: 100%; /* Full width for input and select to fit mobile screens */
+    margin-bottom: 10px; /* Adds space below inputs on small screens */
+  }
+  }
+  
+  @media (max-width: 480px) {
+    .transaction-header {
+      padding: 10px;
+    }
+  
+    .nav-button {
+      font-size: 14px;
+      padding: 8px 10px;
+    }
+  }
   </style>
   

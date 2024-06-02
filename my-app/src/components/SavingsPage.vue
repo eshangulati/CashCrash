@@ -1,5 +1,6 @@
 <template>
     <div class="savings-container">
+      <button @click="logout" class="nav-button logout-button">Logout</button>
         <header class="savings-header">
             <h1>Savings Goals</h1>
             <nav class="nav-buttons">
@@ -156,84 +157,130 @@
   </script>
   
   <style scoped>
-  .savings-container{
-  padding: 20px;
-}  
+  .savings-container {
+      padding: 20px;
+  }  
   .savings-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap; /* Allows header content to wrap on smaller screens */
   }
-  
+
   .nav-buttons button {
-    margin: 0 5px;
+  margin: 5px;
+  flex-grow: 1;
+}
+
+.function_button {
+      margin: 0 5px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      background-color: #4dd0e1;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+}
+.logout-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #ff4444; /* Red color for logout to indicate action */
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px; /* Ensure the font size is consistent */
+  transition: background-color 0.3s;
+}
+  .nav-button.logout-button {
+    background-color: #ff4444; /* Red color for logout to indicate action */
   }
 
-  .savings-circles {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
+  .nav-button.logout-button:hover {
+    background-color: #cc0000; /* Darker red on hover */
+  }
+
+
+  
+  .nav-button{
+      margin: 0 5px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      background-color: #4dd0e1;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
   }
   
-  .savings-circle.alert {
-    background-color: #ff6f61;
+  .savings-circles {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
   }
-  .nav-button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 10px; /* Rounded corners */
-  background-color: #4dd0e1; /* Button background color */
-  color: white;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s;
-  }
-
-  .nav-button:hover {
-  background-color: #26c6da; /* Darker shade on hover */
-  }
-  .add-goal-form {
-  margin-bottom: 20px;
-}
-.function_button{
-    margin: 0 5px;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 5px;
-    background-color: #4dd0e1;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  .function_button:hover {
-  background-color: #26c6da;}
-
+  
   .savings-goal {
-  width: 100%;
-  margin: 10px 0;
-  padding: 10px;
-  background-color: #f3f3f3;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.progress-bar-container {
-  width: 100%;
-  height: 20px;
-  background-color: #ddd;
-  border-radius: 10px;
-  overflow: hidden;
-  position: relative;
-}
-
-.progress-bar {
-  height: 100%;
-  background-color: #4dd0e1;
-  border-radius: 10px;
-  transition: width 0.5s ease;
-}
-
-.savings-goal .alert .progress-bar {
-  background-color: #ff6f61;
-}
+      width: 100%; /* Full width on small screens */
+      margin: 10px 0;
+      padding: 10px;
+      background-color: #f3f3f3;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .progress-bar-container {
+      width: 100%;
+      height: 20px;
+      background-color: #ddd;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+  }
+  
+  .progress-bar {
+      height: 100%;
+      background-color: #4dd0e1;
+      border-radius: 10px;
+      transition: width 0.5s ease;
+  }
+  
+  /* Media Queries for smaller devices */
+  @media (max-width: 768px) {
+      .savings-header {
+          flex-direction: column;
+          align-items: stretch;
+      }
+  
+      .nav-buttons {
+          width: 100%; /* Full width for easier navigation on small devices */
+          margin-top: 10px;
+      }
+  
+      .nav-buttons button {
+          width: 100%; /* Full-width buttons for better accessibility */
+          margin: 5px 0;
+          font-size: 12px;
+      }
+  
+      .savings-goal {
+          padding: 8px; /* Slightly less padding to fit smaller screens better */
+          font-size: 14px; /* Smaller font size for content */
+      }
+  }
+  
+  @media (max-width: 480px) {
+      .savings-header {
+          padding: 10px;
+      }
+  
+      .nav-button {
+          font-size: 14px;
+          padding: 8px 10px;
+      }
+  }
   </style>
   

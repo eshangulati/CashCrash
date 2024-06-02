@@ -1,5 +1,6 @@
 <template>
   <div class="dashboard-container">
+    <button @click="logout" class="nav-button logout-button">Logout</button>
     <header class="dashboard-header">
       <h1>DashBoard</h1>
       <nav class="nav-buttons">
@@ -124,7 +125,13 @@ export default {
     },
     calculateTotalAllowance(){
       this.totalAllowance = this.budgets.reduce((sum, budget) => sum + parseFloat(budget.allowance), 0);
-    }
+    },
+    logout() {
+      localStorage.removeItem('user_id'); // Clear user session
+      this.$router.push('/').then(() => {
+      history.replaceState(null, null, '/'); // Replace the history state
+      });
+  }
   },
   computed: {
     lastThreeTransactions(){
@@ -134,57 +141,66 @@ export default {
 };
 </script>
   
-  <style scoped>
-  .dashboard-container {
-    padding: 20px;
-  }
-  
-  .dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .nav-buttons button {
-    margin: 0 5px;
-  }
-  
-  .dashboard-main {
-    display: flex;
-    flex-wrap: wrap;
-  }
-  
-  .balance-overview,
-  .transaction-history,
-  .upcoming-transaction {
-    flex: 1 1 45%;
-    margin: 10px;
-    padding: 20px;
-    border-radius: 10px;
-    background-color: #e0f7fa;
-    text-align: center;
-  }
-  
-  .balance-amount {
-    font-size: 2em;
-    color: #00796b;
-  }
-  
-  .transaction-history ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .transaction-history li {
-    margin: 5px 0;
-  }
-  
-  .transaction-details {
-    background-color: #4dd0e1;
-    padding: 10px;
-    border-radius: 5px;
-  }
-  .nav-button {
+<style scoped>
+.dashboard-container {
+  padding: 20px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.logout-button {
+  position: absolute;
+  top: 10px; /* Adjust based on desired spacing */
+  right: 10px; /* Adjust based on desired spacing */
+  background-color: #ff4444; /* Red color for logout to indicate action */
+}
+
+.nav-buttons button {
+  margin: 5px;
+  flex-grow: 1;
+}
+
+.dashboard-main {
+  display: flex;
+  flex-direction: column;
+}
+.nav-button.logout-button {
+  background-color: #ff4444; /* Red color for logout to indicate action */
+}
+
+.nav-button.logout-button:hover {
+  background-color: #cc0000; /* Darker red on hover */
+}
+
+.balance-overview,
+.transaction-history {
+  margin: 10px 0;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #e0f7fa;
+  text-align: center;
+}
+
+.balance-amount {
+  font-size: 2em;
+  color: #00796b;
+}
+
+.transaction-history ul {
+  list-style: none;
+  padding: 0;
+}
+
+.transaction-history li {
+  margin: 5px 0;
+}
+
+.nav-button {
   padding: 10px 20px;
   border: none;
   border-radius: 10px; /* Rounded corners */
@@ -193,13 +209,13 @@ export default {
   cursor: pointer;
   font-size: 16px;
   transition: background-color 0.3s;
-  }
+}
 
-  .nav-button:hover {
+.nav-button:hover {
   background-color: #26c6da; /* Darker shade on hover */
-  }
+}
 
-  .progress-bar-container {
+.progress-bar-container {
   width: 100%;
   height: 20px;
   background-color: #ddd;
@@ -218,5 +234,41 @@ export default {
 .savings-goal .alert .progress-bar {
   background-color: #ff6f61;
 }
-  </style>
-  
+
+/* Media Queries for smaller devices */
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+  }
+
+  .nav-buttons button {
+    width: 100%; /* Full width for better accessibility */
+    margin: 5px 0; /* Spacing adjustment */
+  }
+
+  .dashboard-main {
+    flex-direction: column;
+  }
+
+  .nav-buttons button {
+    width: 100%;
+  }
+
+  .balance-overview,
+  .transaction-history,
+  .upcoming-transaction {
+    flex: 1 1 100%; /* Full width on small screens */
+  }
+
+  .balance-amount {
+    font-size: 1.5em; /* Smaller font size for balance */
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-button {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+}
+</style>

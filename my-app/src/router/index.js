@@ -5,6 +5,7 @@ import DashboardPage from '@/components/DashboardPage.vue'
 import TransactionPage from '@/components/TransactionPage.vue'
 import BudgetPage from '@/components/BudgetPage.vue'
 import SavingsPage from '@/components/SavingsPage.vue'
+import ReportsPage from '@/components/ReportsPage.vue'
 
 
 const routes = [
@@ -20,7 +21,7 @@ const routes = [
   },
   {
     path:'/dashboard/:user_id',
-    name: 'dashboard',
+    name: 'Dashboard',
     component: DashboardPage
   },
   {
@@ -37,6 +38,11 @@ const routes = [
     path:'/savings/:user_id',
     name:'savings',
     component: SavingsPage
+  },
+  {
+    path:'/reports/:user_id',
+    name:'reports',
+    component: ReportsPage
   }
 ]
 

@@ -3,26 +3,35 @@
     <div class="register-box">
       <h1>CashCrafter</h1>
       <form @submit.prevent="handleRegister">
-        <div class="input-container">
-          <input type="email" v-model="email" placeholder="Email ID" />
-        </div>
-        <div class="input-container">
-          <input type="text" v-model="username" placeholder="Username" />
-        </div>
-        <div class="input-container">
-          <input type="password" v-model="password" placeholder="Password" />
-        </div>
-        <div class="input-container">
-          <input type="password" v-model="confirmPassword" placeholder="Confirm Password" />
-        </div>
-        <button type="submit" class="register-button">Register</button>
-      </form>
+    <div class="input-container">
+      <label for="email">Email ID</label>
+      <input type="email" id="email" v-model="email" placeholder="Email ID" :class="{'input-error': !validEmail && formSubmitted}">
+      <div v-if="!validEmail && formSubmitted" class="error-message">Please enter a valid email address.</div>
+    </div>
+    <div class="input-container">
+      <label for="username">Username</label>
+      <input type="text" id="username" v-model="username" placeholder="Username" :class="{'input-error': !validUsername && formSubmitted}">
+      <div v-if="!validUsername && formSubmitted" class="error-message">Username must be at least 3 characters.</div>
+    </div>
+    <div class="input-container">
+      <label for="password">Password</label>
+      <input type="password" id="password" v-model="password" placeholder="Password" :class="{'input-error': !validPassword && formSubmitted}">
+      <div v-if="!validPassword && formSubmitted" class="error-message">Password must be at least 6 characters.</div>
+    </div>
+    <div class="input-container">
+      <label for="confirmPassword">Confirm Password</label>
+      <input type="password" id="confirmPassword" v-model="confirmPassword" placeholder="Confirm Password" :class="{'input-error': !passwordsMatch && formSubmitted}">
+      <div v-if="!passwordsMatch && formSubmitted" class="error-message">Passwords do not match.</div>
+    </div>
+    <button type="submit" class="register-button">Register</button>
+  </form>
       <div class="additional-options">
         <router-link to="/">Back to Login</router-link>
       </div>
     </div>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -37,13 +46,22 @@ export default {
       confirmPassword: ''
     };
   },
+  computed: {
+    validEmail() {
+      return /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}]))$/.test(this.email);
+    },
+    validUsername() {
+      return this.username.length >= 3;
+    },
+    validPassword() {
+      return this.password.length >= 6;
+    },
+    passwordsMatch() {
+      return this.password === this.confirmPassword;
+    }
+  },
   methods: {
     handleRegister() {
-      if (this.password !== this.confirmPassword) {
-        alert('Passwords do not match.');
-        return;
-      }
-
       axios.post('http://localhost/api_login.php/register', {
         username: this.username,
         password: this.password,
@@ -51,9 +69,9 @@ export default {
       })
       .then(response => {
         if (response.data.auth) {
-          localStorage.setItem('token', response.data.token);
-          this.$router.push('/dashboard');
-        } else {
+          localStorage.setItem('user_id', response.data.user_id);
+          this.$router.replace(`/dashboard/${response.data.user_id}`);
+      } else {
           alert(response.data.message || 'Registration failed');
         }
       })
@@ -128,6 +146,16 @@ export default {
   
   .additional-options a:hover {
     text-decoration: underline;
+  }
+
+  .input-error {
+    border: 1px solid red;
+  }
+
+  .error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
   }
   </style>
   

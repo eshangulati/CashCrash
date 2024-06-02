@@ -1,5 +1,6 @@
 <template>
     <div class="budget-container">
+      <button @click="logout" class="nav-button logout-button">Logout</button>
       <header class="budget-header">
         <h1>Budget</h1>
         <nav class="nav-buttons">
@@ -174,6 +175,12 @@
         backgroundColor: percentage > 100 ? '#ff6f61' : '#4dd0e1'
       };
     },
+    logout() {
+      localStorage.removeItem('user_id'); // Clear user session
+      this.$router.push('/').then(() => {
+      history.replaceState(null, null, '/'); // Replace the history state
+      });
+  }
     }
     
   };
@@ -183,17 +190,33 @@
   .budget-container {
     padding: 20px;
   }
+
+  .logout-button {
+  position: absolute;
+  top: 10px; /* Adjust based on desired spacing */
+  right: 10px; /* Adjust based on desired spacing */
+  background-color: #ff4444; /* Red color for logout to indicate action */
+  }
+
+.nav-button.logout-button {
+  background-color: #ff4444; /* Red color for logout to indicate action */
+}
+
+.nav-button.logout-button:hover {
+  background-color: #cc0000; /* Darker red on hover */
+}
   
   .budget-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap; /* Allow header elements to wrap on smaller screens */
   }
   
   .nav-buttons button {
-    margin: 0 5px;
+    margin: 5px;
+    flex-grow: 1; /* Ensure buttons expand to fill space */
   }
-  
   
   .budget-item {
     margin: 20px;
@@ -202,32 +225,29 @@
     border: 1px solid #ccc;
     border-radius: 10px;
   }
-
+  
   .budget-item h3 {
     margin-top: 0;
-}    
+  }
   
-  .budget-circle {
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
+  .progress-container {
+    width: 100%;
+    height: 20px;
+    background-color: #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .progress-bar {
+    height: 100%;
     background-color: #4dd0e1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-size: 16px;
-    transition: background-color 0.3s;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    font-size: 14px;
   }
   
-  .budget-circle.alert {
-    background-color: #ff6f61;
-  }
-  
-  .add-budget-button {
-    width: 150px; /* Ensure the button has a fixed width */
-    height: 150px; /* Ensure the button has a fixed height */
+  .nav-button, .function_button, .add-budget-button {
     padding: 10px 20px;
     border: none;
     border-radius: 10px;
@@ -236,10 +256,9 @@
     cursor: pointer;
     font-size: 16px;
     transition: background-color 0.3s;
-    margin: 20px; /* Add some margin to separate it from the other items */
   }
   
-  .add-budget-button:hover {
+  .nav-button:hover, .function_button:hover, .add-budget-button:hover {
     background-color: #26c6da;
   }
   
@@ -259,60 +278,41 @@
     background: white;
     padding: 20px;
     border-radius: 5px;
+    width: 90%; /* Ensures modal content is not too wide on small devices */
   }
   
-  .nav-button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 10px; /* Rounded corners */
-    background-color: #4dd0e1; /* Button background color */
-    color: white;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s;
+  /* Media Queries for smaller devices */
+  @media (max-width: 768px) {
+    .nav-buttons button {
+      width: 100%; /* Full width for better accessibility on smaller screens */
+      margin-top: 5px;
+    }
+  
+    .budget-item, .modal-content {
+      width: 100%; /* Full width to use available space */
+      margin: 10px 0;
+    }
+  
+    .function_button, .add-budget-button {
+      width: auto; /* Allow buttons to grow with the text */
+      padding: 10px 16px;
+      margin-right: 8px ;
+    }
+  
+    .function_button, .nav-button, .add-budget-button {
+      font-size: 12px; /* Smaller font size for better fit */
+    }
+
   }
   
-  .nav-button:hover {
-    background-color: #26c6da; /* Darker shade on hover */
+  @media (max-width: 480px) {
+    .budget-header {
+      flex-direction: column;
+    }
+  
+    .progress-container, .progress-bar {
+      height: 15px; /* Smaller progress bars for less vertical space usage */
+    }
   }
-  .function_button{
-    display: inline-block; /* Ensure the buttons are not collapsing or hiding */
-    margin: 10px 5px; /* Adjust spacing around buttons */
-    padding: 10px 15px; /* More padding for better clickability */
-    border: none;
-    border-radius: 8px; /* Smooth rounded corners */
-    background-color: #17a2b8; /* A brighter, more visible color */
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s; /* Smooth transitions on hover */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.15); /* Subtle shadow for 3D effect */
-}
-
-.function_button:hover, .function_button:focus {
-    background-color: #138496; /* Slightly darker on hover for feedback */
-    transform: translateY(-2px); /* Lift effect on hover */
-    outline: none; /* Remove focus outline */
-}
-
-.function_button:active {
-    transform: translateY(1px); /* Subtle press effect */
-}
-
-  .progress-container {
-    width: 100%;
-    height: 20px;
-    background-color: #ddd;
-    border-radius: 10px;
-    overflow: hidden;
-    position: relative;
-}
-
-.progress-bar {
-  height: 20px;
-  background-color: #4dd0e1;
-  border-radius: 5px;
-  transition: width 0.3s ease;
-}
-
-</style>
+  </style>
   
