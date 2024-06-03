@@ -74,7 +74,13 @@
     submitRating() {
         alert(`Thank you for your review! You rated this ${this.rating} out of 5 stars.`);
         this.showRating = false; // Hide the rating UI
-    }
+    },
+    logout() {
+      localStorage.removeItem('user_id'); // Clear user session
+      this.$router.replace('/').then(() => {
+      history.replaceState(null, null, '/'); // Replace the history state
+      });
+  }
     }
   }
   </script>

@@ -43,12 +43,13 @@ export default {
       email: '',
       username: '',
       password: '',
-      confirmPassword: ''
+      confirmPassword: '',
+      formSubmitted: false
     };
   },
   computed: {
     validEmail() {
-      return /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}]))$/.test(this.email);
+      return /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}]))$/;
     },
     validUsername() {
       return this.username.length >= 3;
@@ -62,24 +63,31 @@ export default {
   },
   methods: {
     handleRegister() {
-      axios.post('http://localhost/api_login.php/register', {
-        username: this.username,
-        password: this.password,
-        email: this.email
-      })
-      .then(response => {
-        if (response.data.auth) {
-          localStorage.setItem('user_id', response.data.user_id);
-          this.$router.replace(`/dashboard/${response.data.user_id}`);
+  this.formSubmitted = true; // Set the form as submitted
+
+  // Check if all validations are true
+  if (this.validEmail && this.validUsername && this.validPassword && this.passwordsMatch) {
+    axios.post('http://localhost/api_login.php/register', {
+      username: this.username,
+      password: this.password,
+      email: this.email
+    })
+    .then(response => {
+      if (response.data.auth) {
+        localStorage.setItem('user_id', response.data.user_id);
+        this.$router.replace(`/dashboard/${response.data.user_id}`);
       } else {
-          alert(response.data.message || 'Registration failed');
-        }
-      })
-      .catch(error => {
-        console.error(error);
-        alert('Error registering.');
-      });
-    }
+        alert(response.data.message || 'Registration failed');
+      }
+    })
+    .catch(error => {
+      console.error(error);
+      alert('Error registering.');
+    });
+  } else {
+    console.log("Validation failed, not submitting form");
+  }
+}
   }
 };
 </script>

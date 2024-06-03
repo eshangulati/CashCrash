@@ -127,11 +127,17 @@ export default {
       this.totalAllowance = this.budgets.reduce((sum, budget) => sum + parseFloat(budget.allowance), 0);
     },
     logout() {
-      localStorage.removeItem('user_id'); // Clear user session
-      this.$router.push('/').then(() => {
-      history.replaceState(null, null, '/'); // Replace the history state
-      });
-  }
+      localStorage.removeItem('user_id'); // Clear user session storage
+      this.user_id = null; // Reset user_id in the Vue instance
+      this.transactions = []; // Optionally clear other user-specific data
+      this.savingsGoals = [];
+      this.budgets = [];
+      this.totalAllowance = 0;
+
+      this.$router.replace('/').then(() => {
+      window.location.reload(); // Force a reload of the entire page
+  });
+}
   },
   computed: {
     lastThreeTransactions(){

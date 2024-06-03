@@ -207,9 +207,9 @@
         this.currentPage = pageNumber;
       },
       logout() {
-      localStorage.removeItem('user_id'); // Clear user session
-      this.$router.push('/').then(() => {
-      history.replaceState(null, null, '/'); // Replace the history state
+        localStorage.removeItem('user_id'); // Clear user session
+        this.$router.push('/').then(() => {
+        history.replaceState(null, null, '/'); // Replace the history state
       });
   }
     },

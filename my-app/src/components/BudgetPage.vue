@@ -141,7 +141,7 @@
             console.error(error);
           });
       },
-      updateTransaction() {
+      updateBudget() {
         return axios.put('http://localhost/budget.php', this.currentBudget)
           .then(() => {
             this.fetchBudgets();
